@@ -1,8 +1,8 @@
 # MiniCompilerForSimpleLanguage
-Mini Compiler for Simple Language 
-Project Documentation 
-COMP343 — Compiler Construction 
-Group Members 
+Mini Compiler for Simple Language <br> 
+Project Documentation <br>
+COMP343 — Compiler Construction <br>
+Group Members <br>
 1. Maryam Ameen 
 2. Mahnoor Ali 
 3. Amina Fiaz 
@@ -11,6 +11,7 @@ Group Members
 
 
 <b>1. What is a Mini Compiler? </b>
+<br>
 A compiler is a program that reads code written by a human (called source code) and translates it 
 into a form the computer can actually run. Think of it like a translator between two languages: 
 the language we write in and the language the machine understands. 
@@ -21,6 +22,7 @@ Even though it is called “mini”, it covers all the core stages a real-world 
 which will make it a complete learning project. 
 
 <b>How does a Compiler Work in Simple Terms? </b>
+<br>
 Imagine writing a sentence in English and giving it to a translator who: 
 • Reads each word one by one (Lexical Analysis) 
 • Checks if the sentence follows the rules of grammar (Syntax Analysis) 
@@ -32,8 +34,10 @@ Each of these steps is a “phase” of the compiler. If something goes wrong at
 is reported and the process stops. 
 
 <b>2. Workflow Diagram</b> 
+<br>
 The workflow diagram below shows the overall path our source code takes from the moment we 
 write it to the moment we see a result. Each box is a stage, and the arrows show what happens 
 next. Error paths branch off when something goes wrong.
+
 
 
