@@ -6,20 +6,14 @@
 #include <cstdio>
 #include <sstream>
 
-// ================================================================
-//  TAC GENERATOR  —  Member 4
-//  Input : vector<Node>           from Semantic Analyzer
-//  Output: vector<TACInstruction> consumed by Assembly Generator
-//
-//  Also prints the TAC to stdout for debugging.
-// ================================================================
+//this class take input from sementic code and generate three address code and it will take inputs like operands pperations and generate three address code
 
 class TACGenerator {
 private:
     int tempCount;
     int labelCount;
     std::string lastTemp;
-    std::vector<TACInstruction> instructions;
+    std::vector<TACInstruction> instructions; // and the instructions stotre here
 
     std::string newTemp() {
         char buf[16];
