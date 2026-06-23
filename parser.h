@@ -4,33 +4,13 @@
 #include <string>
 #include <iostream>
 #include <stdexcept>
-//This is aqeela's code
-// ================================================================
-//  PARSER (Syntax Analyzer)  —  Member 2
-//  Input : vector<Token>  from Lexer
-//  Output: vector<Node>   consumed by Semantic Analyzer
-//
-//  Supported grammar:
-//    program      → statement*
-//    statement    → declStmt | assignStmt | ifStmt
-//                 | whileStmt | printStmt
-//    declStmt     → TYPE IDENTIFIER [ '=' expr ] ';'
-//    assignStmt   → IDENTIFIER '=' expr ';'
-//    ifStmt       → 'if' '(' condition ')' '{' statement* '}'
-//                   [ 'else' '{' statement* '}' ]
-//    whileStmt    → 'while' '(' condition ')' '{' statement* '}'
-//    printStmt    → 'cout' '<<' expr ';'
-//    condition    → expr ( '==' | '!=' | '<' | '>' | '<=' | '>=' ) expr
-//    expr         → IDENTIFIER | NUMBER | FLOAT_LITERAL
-//                 | expr ( '+' | '-' | '*' | '/' ) expr   (simplified)
-// ================================================================
+using namespace std;
 
 class Parser {
 private:
-    std::vector<Token> tokens;
+   vector<Token> tokens;
     int pos;
 
-    // ── Token helpers ────────────────────────────────────────────
     Token& current() { return tokens[pos]; }
 
     Token consume() {
@@ -77,9 +57,6 @@ private:
         return (val == "+" || val == "-" || val == "*" || val == "/");
     }
 
-    // ── Expression parser ────────────────────────────────────────
-    // Returns a single value string (var name or literal).
-    // For binary expressions, emits an "arith" node and returns a temp.
     std::string parseExpr(std::vector<Node>& nodes) {
         // Left operand: IDENTIFIER or NUMBER/FLOAT
         std::string left;
@@ -115,8 +92,6 @@ private:
         return left;
     }
 
-    // ── Condition parser ─────────────────────────────────────────
-    // Returns a string like "x > 5" and emits nothing itself.
     std::string parseCondition() {
         std::string left;
         if (current().type == "IDENTIFIER" || current().type == "NUMBER")
@@ -138,9 +113,6 @@ private:
         return left + " " + op + " " + right;
     }
 
-    // ── Statement parsers ─────────────────────────────────────────
-
-    // TYPE IDENTIFIER [ '=' expr ] ';'
     Node parseDeclStmt(std::vector<Node>& nodes) {
         std::string dtype = consume().value;          // consume type keyword
         std::string varName = expect("IDENTIFIER").value;
@@ -160,11 +132,6 @@ private:
         return decl;
     }
 
-    // IDENTIFIER '=' expr ';'
-    // For binary RHS (x = a + b), we emit:
-    //   arith node  { left=a, op=+, right=b, result=varName }
-    //   assign node { left=varName, right="__arith__" }  ← sentinel
-    // The TAC generator handles "__arith__" by using the last temp.
     Node parseAssignStmt(std::vector<Node>& nodes) {
         std::string varName = consume().value; // consume IDENTIFIER
         expect("ASSIGN");
@@ -181,25 +148,22 @@ private:
                 throw std::runtime_error("[Parser] Expected RHS operand in expression");
             std::string rhs = consume().value;
             expect("SEMICOLON");
-
-            // Arith node carries the destination variable so TAC can write directly
             Node arith;
             arith.type     = "arith";
             arith.left     = lhs;
             arith.op       = op;
             arith.right    = rhs;
-            arith.datatype = varName; // destination for the arith result
+            arith.datatype = varName; 
             nodes.push_back(arith);
 
-            // Assign node signals the variable gets the arith result
             Node assign;
             assign.type  = "assign";
             assign.left  = varName;
-            assign.right = "__arith__"; // sentinel: use last temp
+            assign.right = "__arith__"; 
             return assign;
         }
 
-        // Simple assignment: x = value;
+
         std::string val = parseExpr(nodes);
         expect("SEMICOLON");
 
@@ -210,7 +174,6 @@ private:
         return n;
     }
 
-    // 'if' '(' condition ')' '{' stmts '}' [ 'else' '{' stmts '}' ]
     Node parseIfStmt(std::vector<Node>& nodes) {
         consume(); // consume 'if'
         expect("LPAREN");
@@ -238,9 +201,8 @@ private:
         return n;
     }
 
-    // 'while' '(' condition ')' '{' stmts '}'
     Node parseWhileStmt(std::vector<Node>& nodes) {
-        consume(); // consume 'while'
+        consume();
         expect("LPAREN");
         std::string cond = parseCondition();
         expect("RPAREN");
@@ -256,7 +218,6 @@ private:
         return n;
     }
 
-    // 'cout' '<<' expr ';'
     Node parsePrintStmt(std::vector<Node>& nodes) {
         consume(); // consume 'cout'
         // expect '<<'
@@ -273,7 +234,6 @@ private:
         return n;
     }
 
-    // ── Dispatch one statement ────────────────────────────────────
     void parseStatement(std::vector<Node>& nodes) {
         Token& tok = current();
 
@@ -318,7 +278,6 @@ public:
     }
 };
 
-// ── Public entry point ────────────────────────────────────────────
 inline std::vector<Node> runParser(const std::vector<Token>& tokens) {
     Parser parser(tokens);
     try {
