@@ -7,6 +7,7 @@
 
 // ================================================================
 //  SEMANTIC ANALYZER  —  Member 3
+// by Maryam Ameen
 //  Input : vector<Node>  from Parser
 //  Output: vector<Node>  (same nodes, only passes if valid)
 //
