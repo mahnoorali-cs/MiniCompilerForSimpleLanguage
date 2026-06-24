@@ -19,9 +19,9 @@ private:
         return t;
     }
 
-    Token expect(const std::string& type) {
+    Token expect(const string& type) {
         if (current().type != type) {
-            throw std::runtime_error(
+            throw runtime_error(
                 "[Parser] Syntax Error: expected '" + type +
                 "' but got '" + current().type +
                 "' (\"" + current().value + "\") at token " + std::to_string(pos)
@@ -30,9 +30,9 @@ private:
         return consume();
     }
 
-    Token expectValue(const std::string& value) {
+    Token expectValue(const string& value) {
         if (current().value != value) {
-            throw std::runtime_error(
+            throw runtime_error(
                 "[Parser] Syntax Error: expected \"" + value +
                 "\" but got \"" + current().value + "\""
             );
@@ -40,45 +40,44 @@ private:
         return consume();
     }
 
-    bool isType(const std::string& val) {
+    bool isType(const string& val) {
         return (val == "int"   || val == "float"  || val == "double" ||
                 val == "char"  || val == "bool"   || val == "string" ||
                 val == "void"  || val == "long"   || val == "short"  ||
                 val == "unsigned");
     }
 
-    bool isRelOp(const std::string& val) {
+    bool isRelOp(const string& val) {
         return (val == "==" || val == "!=" ||
                 val == "<"  || val == ">"  ||
                 val == "<=" || val == ">=");
     }
 
-    bool isArithOp(const std::string& val) {
+    bool isArithOp(const string& val) {
         return (val == "+" || val == "-" || val == "*" || val == "/");
     }
 
-    std::string parseExpr(std::vector<Node>& nodes) {
-        // Left operand: IDENTIFIER or NUMBER/FLOAT
-        std::string left;
+   string parseExpr(vector<Node>& nodes) {
+       string left;
         if (current().type == "IDENTIFIER" || current().type == "NUMBER" ||
             current().type == "FLOAT_LITERAL") {
             left = consume().value;
         } else {
-            throw std::runtime_error(
+            throw runtime_error(
                 "[Parser] Syntax Error: expected expression, got \"" +
                 current().value + "\""
             );
         }
 
-        // Optional: binary operator
+       
         if (isArithOp(current().value)) {
-            std::string op = consume().value;
-            std::string right;
+           string op = consume().value;
+            string right;
             if (current().type == "IDENTIFIER" || current().type == "NUMBER" ||
                 current().type == "FLOAT_LITERAL") {
                 right = consume().value;
             } else {
-                throw std::runtime_error("[Parser] Syntax Error: expected RHS of expression");
+                throw runtime_error("[Parser] Syntax Error: expected RHS of expression");
             }
             Node n;
             n.type  = "arith";
@@ -86,36 +85,36 @@ private:
             n.op    = op;
             n.right = right;
             nodes.push_back(n);
-            return left + op + right; // synthetic "result" description
+            return left + op + right; 
         }
 
         return left;
     }
 
-    std::string parseCondition() {
-        std::string left;
+   string parseCondition() {
+     string left;
         if (current().type == "IDENTIFIER" || current().type == "NUMBER")
             left = consume().value;
         else
-            throw std::runtime_error("[Parser] Syntax Error: expected condition LHS");
+            throw runtime_error("[Parser] Syntax Error: expected condition LHS");
 
         if (!isRelOp(current().value) && !isArithOp(current().value))
-            throw std::runtime_error("[Parser] Syntax Error: expected relational operator");
+            throw runtime_error("[Parser] Syntax Error: expected relational operator");
 
-        std::string op = consume().value;
+      string op = consume().value;
 
-        std::string right;
+    string right;
         if (current().type == "IDENTIFIER" || current().type == "NUMBER")
             right = consume().value;
         else
-            throw std::runtime_error("[Parser] Syntax Error: expected condition RHS");
+            throw runtime_error("[Parser] Syntax Error: expected condition RHS");
 
         return left + " " + op + " " + right;
     }
 
     Node parseDeclStmt(std::vector<Node>& nodes) {
-        std::string dtype = consume().value;          // consume type keyword
-        std::string varName = expect("IDENTIFIER").value;
+     string dtype = consume().value;         
+      string varName = expect("IDENTIFIER").value;
 
         Node decl;
         decl.type     = "decl";
@@ -123,8 +122,8 @@ private:
         decl.left     = varName;
 
         if (current().type == "ASSIGN") {
-            consume(); // consume '='
-            std::string val = parseExpr(nodes);
+            consume(); 
+            string val = parseExpr(nodes);
             decl.right = val;
         }
 
@@ -133,20 +132,19 @@ private:
     }
 
     Node parseAssignStmt(std::vector<Node>& nodes) {
-        std::string varName = consume().value; // consume IDENTIFIER
+        string varName = consume().value; 
         expect("ASSIGN");
 
-        // Peek: is this a binary expression?
         if ((current().type == "IDENTIFIER" || current().type == "NUMBER" ||
              current().type == "FLOAT_LITERAL") &&
             pos + 1 < (int)tokens.size() && isArithOp(tokens[pos + 1].value)) {
 
-            std::string lhs = consume().value;
-            std::string op  = consume().value;
+            string lhs = consume().value;
+            string op  = consume().value;
             if (current().type != "IDENTIFIER" && current().type != "NUMBER" &&
                 current().type != "FLOAT_LITERAL")
-                throw std::runtime_error("[Parser] Expected RHS operand in expression");
-            std::string rhs = consume().value;
+                throw runtime_error("[Parser] Expected RHS operand in expression");
+           string rhs = consume().value;
             expect("SEMICOLON");
             Node arith;
             arith.type     = "arith";
@@ -164,7 +162,7 @@ private:
         }
 
 
-        std::string val = parseExpr(nodes);
+        string val = parseExpr(nodes);
         expect("SEMICOLON");
 
         Node n;
@@ -174,21 +172,20 @@ private:
         return n;
     }
 
-    Node parseIfStmt(std::vector<Node>& nodes) {
-        consume(); // consume 'if'
+    Node parseIfStmt(vector<Node>& nodes) {
+        consume(); 
         expect("LPAREN");
-        std::string cond = parseCondition();
+        string cond = parseCondition();
         expect("RPAREN");
         expect("LBRACE");
 
-        // Parse body — adds body nodes directly to the output list
         while (current().type != "RBRACE" && current().type != "EOF_TOKEN")
             parseStatement(nodes);
         expect("RBRACE");
 
-        // Optional else
+       
         if (current().value == "else") {
-            consume(); // consume 'else'
+            consume(); 
             expect("LBRACE");
             while (current().type != "RBRACE" && current().type != "EOF_TOKEN")
                 parseStatement(nodes);
@@ -218,14 +215,13 @@ private:
         return n;
     }
 
-    Node parsePrintStmt(std::vector<Node>& nodes) {
-        consume(); // consume 'cout'
-        // expect '<<'
+    Node parsePrintStmt(vector<Node>& nodes) {
+        consume(); 
         if (current().type != "LSHIFT")
-            throw std::runtime_error("[Parser] Syntax Error: expected '<<' after cout");
+            throw runtime_error("[Parser] Syntax Error: expected '<<' after cout");
         consume();
 
-        std::string val = parseExpr(nodes);
+        string val = parseExpr(nodes);
         expect("SEMICOLON");
 
         Node n;
@@ -234,10 +230,10 @@ private:
         return n;
     }
 
-    void parseStatement(std::vector<Node>& nodes) {
+    void parseStatement(vector<Node>& nodes) {
         Token& tok = current();
 
-        // Declaration: starts with a type keyword
+        
         if (tok.type == "KEYWORD" && isType(tok.value)) {
             nodes.push_back(parseDeclStmt(nodes));
 
@@ -252,25 +248,25 @@ private:
 
         } else if (tok.value == "return") {
             consume();
-            parseExpr(nodes); // parse (and discard) return value
+            parseExpr(nodes); 
             expect("SEMICOLON");
 
         } else if (tok.type == "IDENTIFIER") {
             nodes.push_back(parseAssignStmt(nodes));
 
         } else {
-            // Skip unknown token to avoid infinite loop
-            std::cout << "[Parser] Warning: skipping unexpected token \""
+           
+            cout << "[Parser] Warning: skipping unexpected token \""
                       << tok.value << "\"\n";
             consume();
         }
     }
 
 public:
-    Parser(const std::vector<Token>& toks) : tokens(toks), pos(0) {}
+    Parser(const vector<Token>& toks) : tokens(toks), pos(0) {}
 
-    std::vector<Node> parse() {
-        std::vector<Node> nodes;
+    vector<Node> parse() {
+   vector<Node> nodes;
         while (current().type != "EOF_TOKEN") {
             parseStatement(nodes);
         }
@@ -278,12 +274,12 @@ public:
     }
 };
 
-inline std::vector<Node> runParser(const std::vector<Token>& tokens) {
+inline vector<Node> runParser(const vector<Token>& tokens) {
     Parser parser(tokens);
     try {
         return parser.parse();
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << "\n";
+    } catch (const exception& e) {
+        cerr << e.what() << "\n";
         return {};
     }
 }
