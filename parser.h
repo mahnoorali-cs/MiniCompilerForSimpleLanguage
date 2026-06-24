@@ -24,7 +24,7 @@ private:
             throw runtime_error(
                 "[Parser] Syntax Error: expected '" + type +
                 "' but got '" + current().type +
-                "' (\"" + current().value + "\") at token " + std::to_string(pos)
+                "' (\"" + current().value + "\") at token " + to_string(pos)
             );
         }
         return consume();
@@ -112,7 +112,7 @@ private:
         return left + " " + op + " " + right;
     }
 
-    Node parseDeclStmt(std::vector<Node>& nodes) {
+    Node parseDeclStmt(vector<Node>& nodes) {
      string dtype = consume().value;         
       string varName = expect("IDENTIFIER").value;
 
@@ -131,7 +131,7 @@ private:
         return decl;
     }
 
-    Node parseAssignStmt(std::vector<Node>& nodes) {
+    Node parseAssignStmt(vector<Node>& nodes) {
         string varName = consume().value; 
         expect("ASSIGN");
 
@@ -198,7 +198,7 @@ private:
         return n;
     }
 
-    Node parseWhileStmt(std::vector<Node>& nodes) {
+    Node parseWhileStmt(vector<Node>& nodes) {
         consume();
         expect("LPAREN");
         std::string cond = parseCondition();
