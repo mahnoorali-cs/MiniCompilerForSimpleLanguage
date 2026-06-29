@@ -13,32 +13,34 @@
 #include <string>
 #include <vector>
 
-// ── Helper: print token list ──────────────────────────────────────
-void printTokens(const std::vector<Token>& tokens) {
-    std::cout << "\n===== TOKENS =====\n";
+using namespace std;
+
+// ── Helper: print token list ──
+void printTokens(const vector<Token>& tokens) {
+    cout << "\n===== TOKENS =====\n";
     for (const auto& t : tokens)
-        std::cout << "  " << t.type << "(" << t.value << ")\n";
-    std::cout << "==================\n";
+        cout << "  " << t.type << "(" << t.value << ")\n";
+    cout << "==================\n";
 }
 
-// ── Helper: print node list ───────────────────────────────────────
-void printNodes(const std::vector<Node>& nodes) {
-    std::cout << "\n===== AST NODES =====\n";
+// ── Helper: print node list ──
+void printNodes(const vector<Node>& nodes) {
+    cout << "\n===== AST NODES =====\n";
     for (const auto& n : nodes) {
-        std::cout << "  [" << n.type << "]";
-        if (!n.datatype.empty()) std::cout << " type=" << n.datatype;
-        if (!n.left.empty())     std::cout << " left=" << n.left;
-        if (!n.op.empty())       std::cout << " op=" << n.op;
-        if (!n.right.empty())    std::cout << " right=" << n.right;
-        if (!n.condition.empty())std::cout << " cond=" << n.condition;
-        std::cout << "\n";
+        cout << "  [" << n.type << "]";
+        if (!n.datatype.empty()) cout << " type=" << n.datatype;
+        if (!n.left.empty())     cout << " left=" << n.left;
+        if (!n.op.empty())       cout << " op=" << n.op;
+        if (!n.right.empty())    cout << " right=" << n.right;
+        if (!n.condition.empty())cout << " cond=" << n.condition;
+        cout << "\n";
     }
-    std::cout << "=====================\n";
+    cout << "=====================\n";
 }
 
 int main() {
-    // ── Test source code ──────────────────────────────────────────
-    std::string sourceCode = R"(
+    // ── Test source code ──
+    string sourceCode = R"(
         int x;
         float y;
         bool flag;
@@ -53,58 +55,58 @@ int main() {
         }
     )";
 
-    std::cout << "======================================\n";
-    std::cout << "   MINI COMPILER — START\n";
-    std::cout << "======================================\n";
-    std::cout << "\nSource Code:\n" << sourceCode << "\n";
+    cout << "======================================\n";
+    cout << "   MINI COMPILER — START\n";
+    cout << "======================================\n";
+    cout << "\nSource Code:\n" << sourceCode << "\n";
 
-    // ── Phase 1: Lexer ────────────────────────────────────────────
-    std::cout << "\n[Phase 1] Running Lexer...\n";
-    std::vector<Token> tokens = runLexer(sourceCode);
+    // ── Phase 1: Lexer ──
+    cout << "\n[Phase 1] Running Lexer...\n";
+    vector<Token> tokens = runLexer(sourceCode);
     printTokens(tokens);
 
-    // ── Phase 2: Parser ───────────────────────────────────────────
-    std::cout << "\n[Phase 2] Running Parser...\n";
-    std::vector<Node> nodes = runParser(tokens);
+    // ── Phase 2: Parser ──
+    cout << "\n[Phase 2] Running Parser...\n";
+    vector<Node> nodes = runParser(tokens);
     printNodes(nodes);
 
     if (nodes.empty()) {
-        std::cerr << "\n[Compiler] Parser returned no nodes. Stopping.\n";
+        cerr << "\n[Compiler] Parser returned no nodes. Stopping.\n";
         return 1;
     }
 
-    // ── Phase 3: Semantic Analyzer ────────────────────────────────
-    std::cout << "\n[Phase 3] Running Semantic Analyzer...\n";
-    std::vector<Node> checkedNodes = runSemanticAnalyzer(nodes);
+    // ── Phase 3: Semantic Analyzer ──
+    cout << "\n[Phase 3] Running Semantic Analyzer...\n";
+    vector<Node> checkedNodes = runSemanticAnalyzer(nodes);
 
     if (checkedNodes.empty()) {
-        std::cerr << "\n[Compiler] Semantic analysis produced no valid nodes. Stopping.\n";
+        cerr << "\n[Compiler] Semantic analysis produced no valid nodes. Stopping.\n";
         return 1;
     }
 
-    // ── Phase 4: TAC Generator ────────────────────────────────────
-    std::cout << "\n[Phase 4] Running TAC Generator...\n";
-    std::vector<TACInstruction> tac = runTACGenerator(checkedNodes);
+    // ── Phase 4: TAC Generator ──
+    cout << "\n[Phase 4] Running TAC Generator...\n";
+    vector<TACInstruction> tac = runTACGenerator(checkedNodes);
 
     if (tac.empty()) {
-        std::cerr << "\n[Compiler] TAC Generator produced no instructions. Stopping.\n";
+        cerr << "\n[Compiler] TAC Generator produced no instructions. Stopping.\n";
         return 1;
     }
 
-    // ── Phase 5: Assembly Generator ───────────────────────────────
-    std::cout << "\n[Phase 5] Running Assembly Generator...\n";
+    // ── Phase 5: Assembly Generator ──
+    cout << "\n[Phase 5] Running Assembly Generator...\n";
     AssemblyGenerator asmGen;
-    std::string assembly = asmGen.generate(tac);
+    string assembly = asmGen.generate(tac);
 
-    std::cout << "\n===== ASSEMBLY OUTPUT =====\n";
-    std::cout << assembly;
+    cout << "\n===== ASSEMBLY OUTPUT =====\n";
+    cout << assembly;
 
     // Write to file
     asmGen.generateToFile(tac, "output.asm");
 
-    std::cout << "\n======================================\n";
-    std::cout << "   MINI COMPILER — DONE\n";
-    std::cout << "======================================\n";
+    cout << "\n======================================\n";
+    cout << "   MINI COMPILER — DONE\n";
+    cout << "======================================\n";
 
     return 0;
 }
