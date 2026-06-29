@@ -1,28 +1,26 @@
 #pragma once
 #include <string>
 #include <vector>
+using namespace std;
 
-// ================================================================
-//  SHARED DATA STRUCTURES  —  include this header in ALL files
-// ================================================================
 
-// ── 1. Lexer Output ─────────────────────────────────────────────
+//  1. Lexer Output 
 struct Token {
-    std::string type;   // e.g. "KEYWORD", "IDENTIFIER", "NUMBER"
-    std::string value;  // e.g. "int", "x", "42"
+    string type;   
+    string value;  
 };
 
-// ── 2. Parser / Semantic Analyzer Output ────────────────────────
+// 2. Parser / Semantic Analyzer Output 
 struct Node {
-    std::string type;      // "decl" | "assign" | "arith" | "if" | "while" | "print"
-    std::string datatype;  // "int" | "float" | "bool" | etc.  (used in decl)
-    std::string left;      // LHS variable name
-    std::string op;        // operator: "+", "-", "*", "/", ">", "<", "=="
-    std::string right;     // RHS value or variable name
-    std::string condition; // used in "if" / "while" nodes
+    string type;      
+    string datatype;  
+    string left;     
+    string op;        
+    string right;     
+    string condition; 
 };
 
-// ── 3. TAC / Assembly Output ─────────────────────────────────────
+// 3. TAC / Assembly Output
 enum class TACOp {
     ASSIGN,        // result = arg1
     ADD,           // result = arg1 + arg2
@@ -32,7 +30,7 @@ enum class TACOp {
     LABEL,         // LABEL name:
     GOTO,          // GOTO label
     IF_FALSE_GOTO, // IF_FALSE arg1 GOTO label
-    PRINT          // PRINT arg1
+    PRINT          
 };
 
 struct TACInstruction {
