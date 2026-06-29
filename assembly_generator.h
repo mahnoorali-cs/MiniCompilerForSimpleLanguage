@@ -9,8 +9,8 @@
 #include <stdexcept>
 #include <cctype>
 
-// ================================================================
-//  ASSEMBLY GENERATOR  —  Member 5
+
+//  ASSEMBLY GENERATOR  
 //  Input : vector<TACInstruction>  from TAC Generator
 //  Output: string (assembly code) + optional file write
 //
@@ -25,7 +25,7 @@
 //    JMP_IF_FALSE label
 //    PRINT reg
 //    HALT
-// ================================================================
+
 
 class AssemblyGenerator {
 public:
@@ -218,7 +218,7 @@ private:
     }
 };
 
-// ── Public entry point ────────────────────────────────────────────
+// ── Public entry point 
 inline std::string runAssemblyGenerator(const std::vector<TACInstruction>& tac,
                                         const std::string& outputFile = "output.asm") {
     AssemblyGenerator gen;
