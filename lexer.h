@@ -4,12 +4,11 @@
 #include <vector>
 #include <cctype>
 #include <iostream>
+using namespace std;
 
-// ================================================================
+
 //  LEXER  —  Member 1
 //  Input : raw source code string
-//  Output: vector<Token>
-// ================================================================
 
 class Lexer
 {
@@ -17,7 +16,7 @@ private:
     std::string src;
     int pos;
 
-    bool isKeyword(const std::string &word)
+    bool isKeyword(const string &word)
     {
         return (
             word == "int" || word == "float" || word == "double" ||
@@ -36,9 +35,9 @@ private:
     }
 
 public:
-    Lexer(const std::string &source) : src(source), pos(0) {}
+    Lexer(const string &source) : src(source), pos(0) {}
 
-    std::vector<Token> tokenize()
+     vector<Token> tokenize()
     {
         std::vector<Token> tokens;
 
@@ -46,21 +45,21 @@ public:
         {
             char ch = src[pos];
 
-            // ── Whitespace ───────────────────────────────────────
+            // ── Whitespace 
             if (isspace(ch))
             {
                 pos++;
                 continue;
             }
 
-            // ── Single-line comment ──────────────────────────────
+            // ── Single-line comment 
             if (ch == '/' && pos + 1 < (int)src.size() && src[pos + 1] == '/')
             {
                 while (pos < (int)src.size() && src[pos] != '\n')
                     pos++;
                 continue;
             }
-            // ── Multi-line comment ───────────────────────────────
+            // ── Multi-line comment 
             if (ch == '/' && pos + 1 < (int)src.size() && src[pos + 1] == '*')
             {
                 pos += 2; // skip /*
@@ -75,10 +74,10 @@ public:
                 continue;
             }
 
-            // ── Identifiers / Keywords ───────────────────────────
+            // ── Identifiers / Keywords 
             if (isalpha(ch) || ch == '_')
             {
-                std::string word;
+              string word;
                 while (pos < (int)src.size() && (isalnum(src[pos]) || src[pos] == '_'))
                     word += src[pos++];
                 if (isKeyword(word))
@@ -88,10 +87,10 @@ public:
                 continue;
             }
 
-            // ── Numbers (int + float) ────────────────────────────
+            // ── Numbers (int + float) 
             if (isdigit(ch))
             {
-                std::string num;
+               string num;
                 while (pos < (int)src.size() && isdigit(src[pos]))
                     num += src[pos++];
                 if (pos < (int)src.size() && src[pos] == '.')
@@ -108,10 +107,10 @@ public:
                 continue;
             }
 
-            // ── String literals ──────────────────────────────────
+            // ── String literals 
             if (ch == '"')
             {
-                std::string str;
+                string str;
                 pos++; // skip opening "
                 while (pos < (int)src.size() && src[pos] != '"')
                     str += src[pos++];
@@ -120,17 +119,17 @@ public:
                 continue;
             }
 
-            // ── Char literals ────────────────────────────────────
+            // ── Char literals
             if (ch == '\'')
             {
                 pos++; // skip opening '
-                std::string c(1, src[pos++]);
+               string c(1, src[pos++]);
                 pos++; // skip closing '
                 tokens.push_back({"CHAR_LITERAL", c});
                 continue;
             }
 
-            // ── Operators & Punctuation ──────────────────────────
+            // ── Operators & Punctuation 
             switch (ch)
             {
             case '=':
@@ -296,7 +295,7 @@ public:
                 break;
 
             default:
-                std::cout << "[Lexer] Unknown character: '" << ch << "'\n";
+              cout << "[Lexer] Unknown character: '" << ch << "'\n";
                 pos++;
                 break;
             }
@@ -307,8 +306,8 @@ public:
     }
 };
 
-// ── Public entry point ───────────────────────────────────────────
-inline std::vector<Token> runLexer(const std::string &sourceCode)
+// ── Public entry point
+inline vector<Token> runLexer(const std::string &sourceCode)
 {
     Lexer lexer(sourceCode);
     return lexer.tokenize();
