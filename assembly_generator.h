@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <cctype>
 
+using namespace std;
 
 //  ASSEMBLY GENERATOR  
 //  Input : vector<TACInstruction>  from TAC Generator
@@ -26,10 +27,9 @@
 //    PRINT reg
 //    HALT
 
-
 class AssemblyGenerator {
 public:
-    std::string generate(const std::vector<TACInstruction>& tac) {
+    string generate(const vector<TACInstruction>& tac) {
         output_.str("");
         output_.clear();
         variables_.clear();
@@ -67,43 +67,42 @@ public:
         return output_.str();
     }
 
-    void generateToFile(const std::vector<TACInstruction>& tac,
-                        const std::string& filename) {
-        std::string code = generate(tac);
-        std::ofstream out(filename);
+    void generateToFile(const vector<TACInstruction>& tac,
+                        const string& filename) {
+        string code = generate(tac);
+        ofstream out(filename);
         if (!out.is_open())
-            throw std::runtime_error("[AssemblyGenerator] Cannot open: " + filename);
+            throw runtime_error("[AssemblyGenerator] Cannot open: " + filename);
         out << code;
-        std::cout << "[AssemblyGenerator] Written to " << filename << "\n";
+        cout << "[AssemblyGenerator] Written to " << filename << "\n";
     }
 
 private:
-    std::ostringstream output_;
-    std::vector<std::string> variables_;
-    std::unordered_map<std::string, bool> seen_;
+    ostringstream output_;
+    vector<string> variables_;
+    unordered_map<string, bool> seen_;
 
-    void emitLine(const std::string& line) { output_ << line << "\n"; }
-    void emitComment(const std::string& text) {
+    void emitLine(const string& line) { output_ << line << "\n"; }
+    void emitComment(const string& text) {
         output_ << "    ; TAC: " << text << "\n";
     }
 
-    bool isNumericLiteral(const std::string& s) {
+    bool isNumericLiteral(const string& s) {
         if (s.empty()) return false;
         size_t start = (s[0] == '-') ? 1 : 0;
         for (size_t i = start; i < s.size(); i++)
-            if (!std::isdigit((unsigned char)s[i])) return false;
+            if (!isdigit((unsigned char)s[i])) return false;
         return start < s.size();
     }
 
-    // A valid variable/temp name: only letters, digits, underscores
-    bool isValidVarName(const std::string& s) {
+    bool isValidVarName(const string& s) {
         if (s.empty()) return false;
         for (char c : s)
             if (!isalnum((unsigned char)c) && c != '_') return false;
         return isalpha((unsigned char)s[0]) || s[0] == '_';
     }
 
-    void trackVar(const std::string& name) {
+    void trackVar(const string& name) {
         if (name.empty() || isNumericLiteral(name) || !isValidVarName(name)) return;
         if (seen_.find(name) == seen_.end()) {
             seen_[name] = true;
@@ -111,7 +110,7 @@ private:
         }
     }
 
-    void collectVariables(const std::vector<TACInstruction>& tac) {
+    void collectVariables(const vector<TACInstruction>& tac) {
         for (const auto& i : tac) {
             if (i.op == TACOp::LABEL || i.op == TACOp::GOTO) continue;
             trackVar(i.result);
@@ -120,7 +119,7 @@ private:
         }
     }
 
-    std::string tacToString(const TACInstruction& i) {
+    string tacToString(const TACInstruction& i) {
         switch (i.op) {
             case TACOp::ASSIGN:        return i.result + " = " + i.arg1;
             case TACOp::ADD:           return i.result + " = " + i.arg1 + " + " + i.arg2;
@@ -135,20 +134,18 @@ private:
         }
     }
 
-    void loadIntoAX(const std::string& operand) {
+    void loadIntoAX(const string& operand) {
         if (isNumericLiteral(operand))
-            emitLine("    MOV  AX, " + operand);   // immediate
+            emitLine("    MOV  AX, " + operand);
         else
-            emitLine("    LOAD AX, " + operand);   // from memory
+            emitLine("    LOAD AX, " + operand);
     }
 
-    // result = arg1
     void handleAssign(const TACInstruction& i) {
         loadIntoAX(i.arg1);
         emitLine("    STORE " + i.result + ", AX");
     }
 
-    // result = arg1 OP arg2
     void handleBinaryOp(const TACInstruction& i) {
         loadIntoAX(i.arg1);
         emitLine("    PUSH AX");
@@ -165,27 +162,21 @@ private:
         emitLine("    STORE " + i.result + ", AX");
     }
 
-    // LABEL name:
     void handleLabel(const TACInstruction& i) {
         emitLine(i.result + ":");
     }
 
-    // GOTO label
     void handleGoto(const TACInstruction& i) {
         emitLine("    JMP " + i.result);
     }
 
-    // IF_FALSE "var OP val" GOTO label
-    // The condition string from TAC is like "x > 5" or "y > 0"
     void handleIfFalseGoto(const TACInstruction& i) {
-        // Parse condition string: split on first space
-        std::string cond = i.arg1;
-        std::istringstream ss(cond);
-        std::string lhs, op, rhs;
+        string cond = i.arg1;
+        istringstream ss(cond);
+        string lhs, op, rhs;
         ss >> lhs >> op >> rhs;
 
         if (!lhs.empty() && !op.empty() && !rhs.empty()) {
-            // Evaluate: load LHS, compare with RHS
             loadIntoAX(lhs);
             if (isNumericLiteral(rhs))
                 emitLine("    CMP  AX, " + rhs);
@@ -193,10 +184,9 @@ private:
                 emitLine("    LOAD BX, " + rhs);
                 emitLine("    CMP  AX, BX");
             }
-            // Map relational operator to jump mnemonic (jump if condition is FALSE)
-            std::string jmp;
-            if      (op == ">")  jmp = "JLE";  // not (>) → <=
-            else if (op == "<")  jmp = "JGE";  // not (<) → >=
+            string jmp;
+            if      (op == ">")  jmp = "JLE";
+            else if (op == "<")  jmp = "JGE";
             else if (op == ">=") jmp = "JL";
             else if (op == "<=") jmp = "JG";
             else if (op == "==") jmp = "JNE";
@@ -204,14 +194,12 @@ private:
             else                 jmp = "JMP_IF_FALSE";
             emitLine("    " + jmp + " " + i.result);
         } else {
-            // Fallback: treat arg1 as a boolean variable
             loadIntoAX(i.arg1);
             emitLine("    CMP  AX, 0");
             emitLine("    JE   " + i.result);
         }
     }
 
-    // PRINT var
     void handlePrint(const TACInstruction& i) {
         loadIntoAX(i.arg1);
         emitLine("    PRINT AX");
@@ -219,8 +207,8 @@ private:
 };
 
 // ── Public entry point 
-inline std::string runAssemblyGenerator(const std::vector<TACInstruction>& tac,
-                                        const std::string& outputFile = "output.asm") {
+inline string runAssemblyGenerator(const vector<TACInstruction>& tac,
+                                   const string& outputFile = "output.asm") {
     AssemblyGenerator gen;
     gen.generateToFile(tac, outputFile);
     return gen.generate(tac);
